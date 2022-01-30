@@ -103,7 +103,7 @@ class MainActivity : AppCompatActivity() {
                 // If there was a survey being conducted we will tell the activity to stay in
                 // Survey mode and update the yes and no answers. The program also
                 // sets the question display back to the saved string.
-                questionDisplay.text = savedInstanceState.getString("question")
+                questionDisplay.text = savedInstanceState.getString(LAST_SURVEY_QUESTION_KEY)
                 surveyMode()
                 updateYesAndNo()
             }
