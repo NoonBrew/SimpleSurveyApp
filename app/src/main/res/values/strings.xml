@@ -6,4 +6,5 @@
     <string name="no_button_text">No</string>
     <string name="place_holder_number">20</string>
     <string name="new_survey_button_text">New Survey</string>
+    <string name="no_survey_question">Please enter a yes or no question to ask.</string>
 </resources>
