@@ -7,6 +7,13 @@ class Survey(): ViewModel() {
     private var surveyQuestion = ""
     private var yesAnswers = 0
     private var noAnswers = 0
+
+    val currentYesAnswers: Int
+        get() = yesAnswers
+
+    val currentNoAnswers: Int
+        get() = noAnswers
+
     // This function stores a string to our question variable.
     fun storeQuestion(question: String) {
         surveyQuestion = question
@@ -34,10 +41,15 @@ class Survey(): ViewModel() {
         return noAnswers.toString()
     }
     // Resets the stored values in our survey Class.
-    fun resetSurvey () {
+    fun clearForNewSurvey () {
         yesAnswers = 0
         noAnswers = 0
         surveyQuestion = ""
+    }
+
+    fun resetSurvey () {
+        yesAnswers = 0
+        noAnswers = 0
     }
 
 

@@ -1,5 +1,6 @@
 package com.example.simplesurveyapp
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -7,10 +8,14 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModelProvider
 
 const val TAG = "SURVEY_ACTIVITY"
 const val LAST_SURVEY_QUESTION_KEY = "last-survey-question-bundle-key"
+const val EXTRA_YES_ANSWERS = "com.example.simplesurveyapp.yes_answers"
+const val EXTRA_NO_ANSWERS = "com.example.simplesurveyapp.no_answers"
 
 class MainActivity : AppCompatActivity() {
     // Allows us to initialize our Survey class when it is used.
@@ -22,10 +27,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var surveyQuestion: EditText
     private lateinit var yesButton: Button
     private lateinit var noButton: Button
-    private lateinit var yesTextView: TextView
-    private lateinit var noTextView: TextView
     private lateinit var questionDisplay: TextView
     private lateinit var newSurveyButton: Button
+    private lateinit var resultsButton: Button
+
+    private val surveyResultsResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            result ->  resultHandler(result)
+        }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +43,9 @@ class MainActivity : AppCompatActivity() {
         // Because of the amount of views that we have to link to resource ids I created a
         // function that will hold all of the setting of resource Ids.
         findByViewSetup()
+
+        // TODO add clear viewModel function here for when results are are returned OK from ResultsActivity
+
         // First onclick listener.
         startSurveyButton.setOnClickListener {
             // could save a line of code by turning the question String in the survey class
@@ -55,7 +68,7 @@ class MainActivity : AppCompatActivity() {
                 questionDisplay.text = questionStore
                 // This method will grab the stored answers from our ViewModel class and display
                 // them.
-                updateYesAndNo()
+//                updateYesAndNo()
             } else {
                 // Hint if user does not enter a survey question.
                 Toast.makeText(this, R.string.no_survey_question, Toast.LENGTH_SHORT).show()
@@ -67,21 +80,21 @@ class MainActivity : AppCompatActivity() {
             // This ViewModel method increments our yes value by 1.
             surveyViewModel.addYes()
             // call to update the values displayed.
-            updateYesAndNo()
+//            updateYesAndNo()
         }
         // No button listener.
         noButton.setOnClickListener {
             //This ViewModel method increments our no value by 1.
             surveyViewModel.addNo()
             // Call to update the values displayed.
-            updateYesAndNo()
+//            updateYesAndNo()
         }
         // New survey button listener.
         newSurveyButton.setOnClickListener {
             // This ViewModel method resets our stored question to blank
             // and resets our stored yes and no int values to 0 so that a new question can be
             // asked.
-            surveyViewModel.resetSurvey()
+            surveyViewModel.clearForNewSurvey()
             // This method hides yes, no buttons, and text views and shows the editText view
             // and the startSurvey button.
             questionMode()
@@ -98,16 +111,24 @@ class MainActivity : AppCompatActivity() {
                  * to make sure data was properly cleared.
                  */
                 questionMode()
-                surveyViewModel.resetSurvey()
+                surveyViewModel.clearForNewSurvey()
             }else{
                 // If there was a survey being conducted we will tell the activity to stay in
                 // Survey mode and update the yes and no answers. The program also
                 // sets the question display back to the saved string.
                 questionDisplay.text = savedInstanceState.getString(LAST_SURVEY_QUESTION_KEY)
                 surveyMode()
-                updateYesAndNo()
+//                updateYesAndNo()
             }
 
+        }
+
+        resultsButton.setOnClickListener {
+            Intent(this, SurveyResultsActivity::class.java).apply {
+                putExtra(EXTRA_YES_ANSWERS, surveyViewModel.currentYesAnswers)
+                putExtra(EXTRA_NO_ANSWERS, surveyViewModel.currentNoAnswers)
+                surveyResultsResult.launch(this)
+            }
         }
 
 
@@ -128,20 +149,19 @@ class MainActivity : AppCompatActivity() {
     }
     // Uses the ViewModel method getXAnswers() to grab a string version of our int
     // values and display them.
-    private fun updateYesAndNo() {
-        yesTextView.text = surveyViewModel.getYesAnswers()
-        noTextView.text = surveyViewModel.getNoAnswers()
-    }
+//    private fun updateYesAndNo() {
+//        yesTextView.text = surveyViewModel.getYesAnswers()
+//        noTextView.text = surveyViewModel.getNoAnswers()
+//    }
     // This is the function setting up all our resource connections for our views.
     private fun findByViewSetup() {
         startSurveyButton = findViewById(R.id.start_survey_button)
         surveyQuestion = findViewById(R.id.survey_edit_text_view)
         yesButton = findViewById(R.id.yes_button)
         noButton = findViewById(R.id.no_button)
-        yesTextView = findViewById(R.id.yes_textview)
-        noTextView = findViewById(R.id.no_textview)
         questionDisplay = findViewById(R.id.question_holder_textview)
         newSurveyButton = findViewById(R.id.new_survey_button)
+        resultsButton = findViewById(R.id.results_button)
     }
     // This function hides our initial question and start survey button
     // and also clears the surveyQuestion EditText. I found that when this was not cleared
@@ -152,10 +172,9 @@ class MainActivity : AppCompatActivity() {
         surveyQuestion.visibility = View.INVISIBLE
         yesButton.visibility = View.VISIBLE
         noButton.visibility = View.VISIBLE
-        yesTextView.visibility = View.VISIBLE
-        noTextView.visibility = View.VISIBLE
         questionDisplay.visibility = View.VISIBLE
         newSurveyButton.visibility = View.VISIBLE
+        resultsButton.visibility = View.VISIBLE
     }
     // This hides all our relevant survey views like the yes and no button and the new survey
     // button and makes our survey question EditTextView and start survey button visible again.
@@ -164,9 +183,12 @@ class MainActivity : AppCompatActivity() {
         surveyQuestion.visibility = View.VISIBLE
         yesButton.visibility = View.INVISIBLE
         noButton.visibility = View.INVISIBLE
-        yesTextView.visibility = View.INVISIBLE
-        noTextView.visibility = View.INVISIBLE
         questionDisplay.visibility = View.INVISIBLE
         newSurveyButton.visibility = View.INVISIBLE
+        resultsButton.visibility = View.INVISIBLE
+    }
+
+    private fun resultHandler(result: ActivityResult) {
+        // TODO handle Results.
     }
 }

@@ -7,4 +7,10 @@
     <string name="place_holder_number">20</string>
     <string name="new_survey_button_text">New Survey</string>
     <string name="no_survey_question">Please enter a yes or no question to ask.</string>
+    <string name="results_button_text">Show Results</string>
+    <string name="result_text_view">Results</string>
+    <string name="yes_header">Yes Answers</string>
+    <string name="no_header">No Answers</string>
+    <string name="reset_button_text">Reset Answers</string>
+    <string name="continue_survey_button_text">Continue Survey</string>
 </resources>
