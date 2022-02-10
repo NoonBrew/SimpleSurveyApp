@@ -13,4 +13,5 @@
     <string name="no_header">No Answers</string>
     <string name="reset_button_text">Reset Answers</string>
     <string name="continue_survey_button_text">Continue Survey</string>
+    <string name="activity_warning">Survey was not reset, please reset results and then hit continue.</string>
 </resources>

@@ -31,8 +31,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var newSurveyButton: Button
     private lateinit var resultsButton: Button
 
-    private val surveyResultsResult =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+    private val surveyResultsResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             result ->  resultHandler(result)
         }
 
@@ -44,7 +43,6 @@ class MainActivity : AppCompatActivity() {
         // function that will hold all of the setting of resource Ids.
         findByViewSetup()
 
-        // TODO add clear viewModel function here for when results are are returned OK from ResultsActivity
 
         // First onclick listener.
         startSurveyButton.setOnClickListener {
@@ -122,11 +120,14 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
-
+        // Passes our Result Intent to the Android Activity Manager.
         resultsButton.setOnClickListener {
             Intent(this, SurveyResultsActivity::class.java).apply {
+                // We store extras in the package that hold the data of our yes and no's
                 putExtra(EXTRA_YES_ANSWERS, surveyViewModel.currentYesAnswers)
                 putExtra(EXTRA_NO_ANSWERS, surveyViewModel.currentNoAnswers)
+                // This is part of our StartActivityForResult method. This allows to launch an
+                // Activity expecting a result back.
                 surveyResultsResult.launch(this)
             }
         }
@@ -188,7 +189,28 @@ class MainActivity : AppCompatActivity() {
         resultsButton.visibility = View.INVISIBLE
     }
 
+    // Tried passing a Boolean at first wasn't properly resetting the Survey Method, but passing
+    // Ints seemed to work
+    // This function handles the Results from the second activity.
     private fun resultHandler(result: ActivityResult) {
-        // TODO handle Results.
+        // Checks to see if the activity was performed. If the activity was exited out of we do nothing
+        if (result.resultCode == RESULT_OK) {
+            // Passes the extra data into the Intent to allow us to read our key value pairs.
+            val intent = result.data
+            // Reads the int data for the respective key value pairs. Because it is nullable we set
+            // a default that tests 'False' for our if statement so if the user did nothing or their
+            // was an error our app will do nothing.
+            val resultYes = intent?.getIntExtra(EXTRA_SURVEY_STATUS_YES, 1) ?: 1
+            val resultNo = intent?.getIntExtra(EXTRA_SURVEY_STATUS_NO, 1) ?: 1
+            // Checks the results receive from the intent, if the survay was reset meaing the totals
+            // were both dropped to 0 the survey clears itself in the view model so the data doesn't
+            // persist over multiple surveys
+            if (resultYes == 0 && resultNo == 0) {
+                surveyViewModel.resetSurvey()
+            }
+        } else {
+            // Displays a message if user used the back button rather than hitting continue.
+            Toast.makeText(this, getString(R.string.activity_warning), Toast.LENGTH_LONG).show()
+        }
     }
 }

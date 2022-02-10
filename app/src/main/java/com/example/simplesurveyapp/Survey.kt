@@ -7,12 +7,13 @@ class Survey(): ViewModel() {
     private var surveyQuestion = ""
     private var yesAnswers = 0
     private var noAnswers = 0
-
+    // creates getters for our yes an no answer values.
     val currentYesAnswers: Int
         get() = yesAnswers
 
     val currentNoAnswers: Int
         get() = noAnswers
+
 
     // This function stores a string to our question variable.
     fun storeQuestion(question: String) {
